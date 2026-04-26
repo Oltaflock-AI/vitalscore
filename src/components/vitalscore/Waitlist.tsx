@@ -48,6 +48,33 @@ const Waitlist = () => {
         </form>
 
         <p className="text-xs text-foreground/50 mt-5">No spam. One email when we're ready for you.</p>
+
+        <div className="mt-12 max-w-xl mx-auto text-left bg-card border border-border rounded-2xl p-6 md:p-7 shadow-card">
+          <div className="flex items-center gap-2 mb-4">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-accent" aria-hidden>
+              <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <h3 className="font-display text-lg text-primary">Your email, handled carefully.</h3>
+          </div>
+          <ul className="space-y-3 text-sm text-foreground/70 leading-relaxed">
+            <li className="flex gap-3">
+              <span className="mt-2 size-1.5 rounded-full bg-accent shrink-0" />
+              <span><span className="text-primary font-medium">One purpose only.</span> We'll use your email to tell you when your spot opens — and nothing else.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="mt-2 size-1.5 rounded-full bg-accent shrink-0" />
+              <span><span className="text-primary font-medium">Stored securely.</span> Encrypted at rest on EU-based servers. Never sold, never shared with third parties.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="mt-2 size-1.5 rounded-full bg-accent shrink-0" />
+              <span><span className="text-primary font-medium">Yours to remove.</span> Reply "remove" to any email and we'll delete your address within 24 hours.</span>
+            </li>
+          </ul>
+          <p className="text-xs text-foreground/50 mt-5">
+            By joining, you agree to our <a href="#" className="underline underline-offset-2 hover:text-primary">Privacy Policy</a>. GDPR & CCPA compliant.
+          </p>
+        </div>
       </div>
     </section>
   );
