@@ -1,18 +1,39 @@
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Waitlist = () => {
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.includes("@")) {
       toast({ title: "Please enter a valid email" });
       return;
     }
-    setSubmitted(true);
-    toast({ title: "You're on the list", description: "We'll be in touch soon." });
+
+    setSubmitting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("join-waitlist", {
+        body: { email },
+      });
+
+      if (error || !data?.success) {
+        const msg = (data as { error?: string } | null)?.error ?? "Something went wrong. Please try again.";
+        toast({ title: "Couldn't join the list", description: msg });
+        return;
+      }
+
+      setSubmitted(true);
+      toast({ title: "You're on the list", description: "We'll be in touch soon." });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Network error", description: "Please try again in a moment." });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -35,15 +56,15 @@ const Waitlist = () => {
             placeholder="you@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={submitted}
+            disabled={submitted || submitting}
             className="flex-1 px-5 py-4 rounded-full bg-card border border-border text-primary placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all disabled:opacity-60"
           />
           <button
             type="submit"
-            disabled={submitted}
+            disabled={submitted || submitting}
             className="px-7 py-4 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-60"
           >
-            {submitted ? "You're in ✓" : "Join the waitlist"}
+            {submitted ? "You're in ✓" : submitting ? "Joining…" : "Join the waitlist"}
           </button>
         </form>
 
