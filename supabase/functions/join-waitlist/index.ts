@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
-const SPREADSHEET_ID = "1vAsyT8Oan0ic_l_15iVzvvVoUMkAXPeAYMjp0cL0cco";
+const SPREADSHEET_ID = "1zc356yO95lxH6_f1I1VVsM8PlJDDj0I9mZ4oM7hVIHo";
 const RANGE = "Waitlist!A:C";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
