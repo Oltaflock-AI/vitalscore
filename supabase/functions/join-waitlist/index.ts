@@ -6,8 +6,9 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
-const SPREADSHEET_ID = "1vAsyT8Oan0ic_l_15iVzvvVoUMkAXPeAYMjp0cL0cco";
-const RANGE = "Waitlist!A:C";
+const SPREADSHEET_ID = "1zc356yO95lxH6_f1I1VVsM8PlJDDj0I9mZ4oM7hVIHo";
+const PREFERRED_TAB = "Waitlist";
+const HEADER_ROW = ["Email", "Signed up at", "Source"];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -47,20 +48,62 @@ Deno.serve(async (req) => {
       });
     }
 
-    const url = `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    const gwHeaders = {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": GOOGLE_SHEETS_API_KEY,
+      "Content-Type": "application/json",
+    };
 
-    const sheetsRes = await fetch(url, {
+    // 1. Look up sheet tabs to find the right one (or fall back to the first tab)
+    const metaRes = await fetch(
+      `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties(title)`,
+      { headers: gwHeaders },
+    );
+    const metaText = await metaRes.text();
+    if (!metaRes.ok) {
+      console.error("Google Sheets metadata fetch failed", metaRes.status, metaText);
+      throw new Error(`Sheets metadata failed [${metaRes.status}]: ${metaText}`);
+    }
+    const meta = JSON.parse(metaText) as { sheets?: { properties?: { title?: string } }[] };
+    const tabs = (meta.sheets ?? []).map((s) => s.properties?.title).filter((t): t is string => !!t);
+    const tab = tabs.find((t) => t === PREFERRED_TAB) ?? tabs[0];
+    if (!tab) throw new Error("Spreadsheet has no sheets");
+    const range = `${tab}!A:C`;
+
+    // 2. If the sheet is empty, write a header row first
+    const valuesRes = await fetch(
+      `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values/${tab}!A1:C1`,
+      { headers: gwHeaders },
+    );
+    const valuesJson = (await valuesRes.json()) as { values?: string[][] };
+    const hasHeader = !!valuesJson.values && valuesJson.values.length > 0;
+
+    if (!hasHeader) {
+      const headerRes = await fetch(
+        `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values/${tab}!A1:C1?valueInputOption=USER_ENTERED`,
+        {
+          method: "PUT",
+          headers: gwHeaders,
+          body: JSON.stringify({ values: [HEADER_ROW] }),
+        },
+      );
+      if (!headerRes.ok) {
+        const t = await headerRes.text();
+        console.error("Header write failed", headerRes.status, t);
+      } else {
+        await headerRes.text();
+      }
+    }
+
+    // 3. Append the new row
+    const appendUrl = `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    const sheetsRes = await fetch(appendUrl, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": GOOGLE_SHEETS_API_KEY,
-        "Content-Type": "application/json",
-      },
+      headers: gwHeaders,
       body: JSON.stringify({
         values: [[email, new Date().toISOString(), "vitalscore-landing"]],
       }),
     });
-
     const text = await sheetsRes.text();
     if (!sheetsRes.ok) {
       console.error("Google Sheets append failed", sheetsRes.status, text);
