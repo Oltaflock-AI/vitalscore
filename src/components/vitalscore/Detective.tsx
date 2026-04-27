@@ -12,19 +12,13 @@ const Detective = () => {
           <div className="text-lg text-foreground/70 mt-6 leading-relaxed text-pretty max-w-[50ch] space-y-4">
             <p>On Sunday night, enter one number: your weight.</p>
             <p>
-              VitalScore doesn't track everything you do. It reads the signal your body leaves behind — and tells you
-              what likely changed that week.
+              VitalScore reads the signal your body leaves behind — and shows you what likely changed.
             </p>
+            <p>What worked. What slipped. What to fix next.</p>
             <p>
-              Whether your routine held, slipped, or actually worked — you'll know what moved the needle, and what to
-              fix next.
-            </p>
-            <p>
-              It won't pretend to know exactly what you did each day. But it will show you what your body is responding
-              to — and why.
-            </p>
-            <p>
-              That's the moment users say <em>"okay… this actually understands me."</em>
+              No tracking everything.
+              <br />
+              Just understanding what matters.
             </p>
           </div>
 
