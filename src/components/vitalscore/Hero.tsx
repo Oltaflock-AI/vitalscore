@@ -38,7 +38,7 @@ const Hero = () => {
               <div className="size-7 rounded-full bg-primary/30 border-2 border-background" />
               <div className="size-7 rounded-full bg-accent/60 border-2 border-background" />
             </div>
-            <span>Joining 2,400+ on the waitlist</span>
+            <span>Joining 200+ on the waitlist</span>
           </div>
         </div>
 
